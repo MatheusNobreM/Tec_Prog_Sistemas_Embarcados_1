@@ -10,9 +10,7 @@ void imprimiBit(unsigned char x){
 }
 
 unsigned int circular_right(unsigned int x, int n){
-    unsigned int rotacionado = 0;
-    rotacionado = (x >> n) | (x<< (8-n));
-    return rotacionado;
+    return (x >> n) | (x<< (8-n));
 }
 
 int main() {

@@ -10,12 +10,12 @@ void imprimiBit(unsigned char x){
 }
 
 int main() {
-    unsigned char status = 0b11111111;
+    unsigned char status = 0b11110111;
 
     printf("Status inicial: ");
     imprimiBit(status);
 
-    status &= ~(1 << 4);
+    status &= ~(1<< 4);
     printf("Status final: ");
     imprimiBit(status);
     

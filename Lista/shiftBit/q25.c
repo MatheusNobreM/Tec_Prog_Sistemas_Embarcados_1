@@ -8,9 +8,9 @@ void imprimiBit(unsigned char x){
     printf("\n");
 }
 
-unsigned char shift_bits_left(unsigned char x) {
-    unsigned char count = 0; // Contador de bits 1
-    unsigned char temp = x;
+unsigned char shift_bits_left(unsigned int x) {
+    unsigned int count = 0; // Contador de bits 1
+    unsigned int temp = x;
     
     // Conta o número de bits 1
     while (temp) {
@@ -23,12 +23,14 @@ unsigned char shift_bits_left(unsigned char x) {
 }
 
 int main() {
-    unsigned char input = 0x56; // 01010110 em binário
-    unsigned char result = shift_bits_left(input);
+    unsigned int input = 8; // 01010110 em binário
+    unsigned int result = shift_bits_left(input);
     
     printf("Entrada: ");
     imprimiBit(input);
     printf("Saída: ");
     imprimiBit(result);
+    printf("\n");
+    printf("%d",result);
     return 0;
 }

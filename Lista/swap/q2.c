@@ -7,10 +7,10 @@
     }\
 }while(0)
 
-void imprimiBit(unsigned char x){
+void imprimiBit(unsigned int x){
     printf("0b");
     for(int i = 7; i>=0; i--){
-        printf("%d", (x >>i) & 1);
+        printf("%d",(x >> i)&1);
     }
     printf("\n");
 }
