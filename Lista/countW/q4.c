@@ -3,7 +3,7 @@
 
 int countBits(bool w, unsigned int value) {
     int count = 0;
-    for (int i = 0; i < 8; i++) {  // unsigned int tem 32 bits
+    for (int i = 0; i < 8; i++) { 
         int bit = (value >> i) & 1;
         if (bit == w) {
             count++;

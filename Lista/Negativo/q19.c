@@ -3,7 +3,7 @@
 #define IS_NEGATIVE(x) ((x) < 0)
 
 int main() {
-    int x = -95; // troque para 10 para testar outro caso
+    int x = -95; 
 
     if (IS_NEGATIVE(x)) {
         printf("x é negativo\n");

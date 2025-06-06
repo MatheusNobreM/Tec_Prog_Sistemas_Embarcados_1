@@ -18,7 +18,7 @@ unsigned char mirror_bits(unsigned char value){
 }
 
 int main() {
-    unsigned char value = 0b11100101;
+    unsigned char value = 0b11100001;
 
     printf("Original: ");
     imprimiBit(value);
