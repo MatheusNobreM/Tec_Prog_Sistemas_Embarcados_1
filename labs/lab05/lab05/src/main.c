@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdint.h>
 
 // macros do clock
 #define CM_PER 						(*(volatile unsigned int *)0x44E00000)
@@ -27,6 +28,26 @@
 #define INTC_CONTROL 				(*(volatile unsigned int *)0x48200048)
 #define INTC_MIR_CLEAR_3 			(*(volatile unsigned int *)0x482000E8) // GPIOINT1A (5>>98) = 3 -> 98 & 1f = 2
 
+//Macro Uart
+#define UART_BASE 					0x44E09000
+#define UART_RHR  					(*(volatile uint32_t *)(UART_BASE + 0x00))
+#define UART_LSR_DR 				(1 << 0)
+#define UART_THR 					(*(volatile uint32_t *)(UART_BASE + 0x00))
+#define UART_LSR 					(*(volatile uint32_t *)(UART_BASE + 0x14))
+#define UART_LSR_THERE 				(1 << 5)
+
+#define CONF_UART0_RXD 				(*(volatile unsigned int *) 0x44E10970)
+#define CONF_UART0_TXD 				(*(volatile unsigned int *) 0x44E10974)
+
+#define UART0_LCR 					(*(volatile unsigned int *) 0x48E0900C)
+#define UART0_DLL					(*(volatile unsigned int *) 0x48E09000)
+#define UART0_DLH 					(*(volatile unsigned int *) 0x48E09004)
+#define UART0_FCR 					(*(volatile unsigned int *) 0x48E09008)
+ 
+#define CM_WKUP_UART0_CLKCTRL 		(*(volatile unsigned int *) 0x48E004B4)
+ 
+#define UART0_MDR1 					(*(volatile unsigned int *) 0x48E09020)
+
 // macros led e botão
 #define LED 22 // led interno
 
@@ -47,11 +68,42 @@ void acender_LED();
 void ledON();
 void ledOFF();
 void ISR_Handler(void);
+void uart0_clock_enable();
+void uart0_pin_mux_setup();
+void uart0_setup();
+void putCh(char c);
+void putString(const char *str);
+char getCh(void);
+void getString(char *buffer, unsigned int length);
 
 int main(void){
 	setup();
 	while (1);
 	return 0;
+}
+
+void uart0_clock_enable(){
+	CM_WKUP_UART0_CLKCTRL = 0x2;
+	while((CM_WKUP_UART0_CLKCTRL & (0b11 << 16)) !=0 );
+}
+
+void uart0_pin_mux_setup(){
+	//Uart
+	CONF_UART0_RXD |= 0x20;
+	CONF_UART0_TXD |= 0x00;
+}
+
+void uart0_setup(){
+	UART0_MDR1 = 0x7; // Coloca em modo de configuração
+
+	UART0_LCR = 0x83; //acesso divisor
+	UART0_DLL = 26; //taxa de transmição
+	UART0_DLH = 0;
+	UART0_LCR = 0x03;
+	UART0_FCR = 0x07; // Habilita o FIFO
+
+	UART0_MDR1 = 0x0;// ligar
+
 }
 
 void delay(unsigned int mSec){
@@ -105,12 +157,47 @@ void intc_interrupt_enable(){
 }
 
 void setup(){
+	uart0_clock_enable();
+	uart0_pin_mux_setup();
+	uart0_setup();
 	gpioSetup();
 	pin_mode();
 	gpio_entry_enable();
 	gpio_output_enable();
 	gpio_interrupt_enable();
 	intc_interrupt_enable();
+	
+}
+
+void putCh(char c){
+	while(!(UART_LSR & UART_LSR_THERE));
+	UART_THR = c;
+}
+
+void putString(const char *str){
+	while(*str) {
+		if(*str == '\n')
+			putCh('\r');
+		putCh(*str++);
+	}
+}
+
+char getCh(void){
+	while(!(UART_LSR & (1<<0)));
+	return UART_RHR;
+}
+
+void getString(char *buffer, unsigned int length) {
+	int i = 0;
+	char c;
+	while(i < (length - 1)){
+		c = getCh();
+		if(c == '\r' || c == '\n'){
+			break;
+		}
+		buffer[i++] = c;
+	}
+	buffer[i] = '\0';
 }
 
 void acender_LED(){
@@ -134,8 +221,14 @@ void ledOFF(){
 void ISR_Handler(void){
 	unsigned int status = GPIO1_IRQSTATUS;
 	if(status & (1 << BTC)){
-		acender_LED();
+		delay(50000);
+		if((GPIO1_DATAIN & (1 << BTC))){
+			acender_LED();
+		}
+		
 		// Limpa a interrupção
 		GPIO1_IRQSTATUS = (1 << BTC);
+		putString("Led Interno Acesso\n");
+
 	}
 }
