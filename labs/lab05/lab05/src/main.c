@@ -74,7 +74,7 @@ void uart0_setup();
 void putCh(char c);
 void putString(const char *str);
 char getCh(void);
-void getString(char *buffer, unsigned int length);
+//void getString(char *buffer, unsigned int length);
 
 int main(void){
 	setup();
@@ -187,18 +187,18 @@ char getCh(void){
 	return UART_RHR;
 }
 
-void getString(char *buffer, unsigned int length) {
-	int i = 0;
-	char c;
-	while(i < (length - 1)){
-		c = getCh();
-		if(c == '\r' || c == '\n'){
-			break;
-		}
-		buffer[i++] = c;
-	}
-	buffer[i] = '\0';
-}
+// void getString(char *buffer, unsigned int length) {
+// 	int i = 0;
+// 	char c;
+// 	while(i < (length - 1)){
+// 		c = getCh();
+// 		if(c == '\r' || c == '\n'){
+// 			break;
+// 		}
+// 		buffer[i++] = c;
+// 	}
+// 	buffer[i] = '\0';
+// }
 
 void acender_LED(){
 	if (estado_led){
