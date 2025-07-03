@@ -240,17 +240,43 @@ int main(void) {
     uart0_write_str("----------------------------------------\r\n");
     
     // Loop principal
-	while(1){
-		unsigned char entrada = uart0_getc();
+   while (1){
+    char entrada = uart0_getc();
 
-		if (entrada == '1'){
-			uart0_write_str("LED INTERNO LIGADO\r\n");
-			GPIO1_SETDATAOUT = LED_INT;
-		} else if (entrada == '0'){
-			uart0_write_str("LED INTERNO DESLIGADO\r\n");
-			GPIO1_CLEARDATAOUT = LED_INT;
-		}
-	}
+    if (entrada - '0' == 1){
+      uart0_write_int(1);
+      delay(1000000);
+      button_int_pressed = !button_int_pressed;
+      printTextInt();
+      changeInt();
+    } else if (entrada - '0' == 2){
+      uart0_write_int(2);
+      delay(1000000);
+      button_red_pressed = !button_red_pressed;
+      printTextRed();
+      changeRed();
+    } else if (entrada - '0' == 3){
+      uart0_write_int(3);
+      delay(1000000);
+      button_white_pressed = !button_white_pressed;
+      changeWhite();
+      printTextWhite();
+    } else if (entrada == 'h'){
+      uart0_write_str("\r\n");
+      uart0_write_str("----------------------------------------\r\n");
+      uart0_write_str("             MENU DO PROJETO\r\n");
+      uart0_write_str("----------------------------------------\r\n\n");
+      uart0_write_str("BOTÃO 1) LED INTERNO\r\n");
+      uart0_write_str("BOTÃO 2) LED VERMELHO\r\n");
+      uart0_write_str("BOTÃO 3) LED BRANCO\r\n\n");
+      uart0_write_str("----------------------------------------\r\n");
+      uart0_write_str("\r\n");
+    }
+
+    uart0_write_str("\r\n");
+    
+   }
+   
     
     return 0;
 }

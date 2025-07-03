@@ -1,0 +1,1 @@
+setenv app "setenv autoload no;setenv ipaddr 10.8.3.2; setenv serverip 10.8.3.1; tftp 0x80000000 appGpio.bin;echo ***Booting to BareMetal ***;go 0x80000000"
