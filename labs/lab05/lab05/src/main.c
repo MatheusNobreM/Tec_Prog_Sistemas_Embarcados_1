@@ -55,10 +55,10 @@ void uart0_write_str(const char *str) {
 // Definições de pinos
 #define LED_INT (1 << 21)  // P8_21 (LED INT)
 #define BUTTON1_PIN (1 << 6) // P8_3(BOTÃO INT)
-#define BUTTON2_PIN (1 << 3)// P8_6 (BOTAO RED)
-#define BUTTON3_PIN (1 << 7)// P8_4 (BOTAO WHITE)
-#define LED_RED (1 << 13)// P8_11 (PINO DO LED RED)
-#define LED_WHITE (1 << 12)// P8_12 (PINO DO LED WHITE)
+#define BUTTON2_PIN (1 << 3)// P8_6 
+#define BUTTON3_PIN (1 << 7)// P8_4 
+#define LED1 (1 << 13)// P8_11 PINO DO LED 1
+#define LED2 (1 << 12)// P8_12 PINO DO LED 2
 
 
 void uart0_write_int(unsigned char inteiro) {
@@ -93,8 +93,8 @@ void disable_watchdog(void) {
 }
 
 volatile bool button_int_pressed = false;
-volatile bool button_red_pressed = false;
-volatile bool button_white_pressed = false;
+volatile bool button_2_pressed = false;
+volatile bool button_3_pressed = false;
 
 void delay(uint32_t cycles) {
     volatile uint32_t i;
@@ -107,18 +107,18 @@ void gpio_setup(void) {
     while(!(CM_PER_GPIO1_CLKCTRL & 0x3)); // Espera ativação
     
     CONF_GPMC_AD6 |= (7 | (1 << 5));//SET O BOTÃO INT MOD7 E RECEPTOR ATIVO
-    CONF_GPMC_AD3 |= (7 | (1 << 5));//SET O BOTÃO RED MOD7 E RECEPTOR ATIVO
-    CONF_GPMC_AD7 |= (7 | (1 << 5));//SET O BOTÃO WHITE MOD7 E RECEPTOR ATIVO
-    CONF_GPMC_AD13 |= 7;//SET LED RED NO MOD7
-    CONF_GPMC_AD12 |= 7;//SET LED WHITE NO MOD7
+    CONF_GPMC_AD3 |= (7 | (1 << 5));//SET O BOTÃO 1 MOD7 E RECEPTOR ATIVO
+    CONF_GPMC_AD7 |= (7 | (1 << 5));//SET O BOTÃO 2 MOD7 E RECEPTOR ATIVO
+    CONF_GPMC_AD13 |= 7;//SET LED 1 NO MOD7
+    CONF_GPMC_AD12 |= 7;//SET LED 2 NO MOD7
 
     // Configura pinos
     GPIO1_OE &= ~LED_INT;       // LED INT como saída
-    GPIO1_OE &= ~LED_WHITE;     // LED WHITE como saida
-    GPIO1_OE &= ~LED_RED;       // LED RED como saida 
+    GPIO1_OE &= ~LED2;     // LED 2 como saida
+    GPIO1_OE &= ~LED1;       // LED 1 como saida 
     GPIO1_OE |= BUTTON1_PIN;    // Botão LED INT como entrada
-    GPIO1_OE |= BUTTON2_PIN;    // Botão LED RED como entrada
-    GPIO1_OE |= BUTTON3_PIN;    // Botão LED WHITE como entrada
+    GPIO1_OE |= BUTTON2_PIN;    // Botão LED 1 como entrada
+    GPIO1_OE |= BUTTON3_PIN;    // Botão LED 2 como entrada
     
     
     // Configura interrupção
@@ -149,18 +149,18 @@ void printTextInt(){
     uart0_write_str("LED INTERNO APAGADO\r\n");
   }
 }
-void printTextRed(){
-  if (button_red_pressed){
-    uart0_write_str("LED VERMELHO ACESO\r\n");
+void printText1(){
+  if (button_2_pressed){
+    uart0_write_str("LED 1 ACESO\r\n");
   } else {
-    uart0_write_str("LED VERMELHO APAGADO\r\n");
+    uart0_write_str("LED 1 APAGADO\r\n");
   }
 }
-void printTextWhite(){
-  if (button_white_pressed){
-    uart0_write_str("LED BRANCO ACESO\r\n");
+void printText2(){
+  if (button_3_pressed){
+    uart0_write_str("LED 2 ACESO\r\n");
   } else {
-    uart0_write_str("LED BRANCO APAGADO\r\n");
+    uart0_write_str("LED 2 APAGADO\r\n");
   }
 }
 
@@ -172,48 +172,48 @@ void changeInt(){
   }
 }
 
-void changeRed(){
-  if (button_red_pressed){
-    GPIO1_SETDATAOUT = LED_RED;
+void change1(){
+  if (button_2_pressed){
+    GPIO1_SETDATAOUT = LED1;
   } else {
-    GPIO1_CLEARDATAOUT = LED_RED;
+    GPIO1_CLEARDATAOUT = LED1;
   }
 }
 
-void changeWhite(){
-  if (button_white_pressed){
-    GPIO1_SETDATAOUT = LED_WHITE;
+void change2(){
+  if (button_3_pressed){
+    GPIO1_SETDATAOUT = LED2;
   } else {
-    GPIO1_CLEARDATAOUT = LED_WHITE;
+    GPIO1_CLEARDATAOUT = LED2;
   }
 }
 
 
 void gpio_isr_handler(void) {
-    if(GPIO1_IRQSTATUS_0 & BUTTON1_PIN) {
-        delay(1000000);
-        GPIO1_IRQSTATUS_0 = BUTTON1_PIN; // Limpa flag
-        button_int_pressed = !button_int_pressed;
-        uart0_write_str("<Botão 1>\r\n");
-        printTextInt();
-        changeInt();
-    }
+    // if(GPIO1_IRQSTATUS_0 & BUTTON1_PIN) {
+    //     delay(1000000);
+    //     GPIO1_IRQSTATUS_0 = BUTTON1_PIN; // Limpa flag
+    //     button_int_pressed = !button_int_pressed;
+    //     uart0_write_str("<Botão 1>\r\n");
+    //     printTextInt();
+    //     changeInt();
+    // }
     if(GPIO1_IRQSTATUS_0 & BUTTON2_PIN) {
         delay(1000000);
         GPIO1_IRQSTATUS_0 = BUTTON2_PIN; // Limpa flag
-        button_red_pressed = !button_red_pressed;
+        button_2_pressed = !button_2_pressed;
         uart0_write_str("<Botão 2>\r\n");
-        printTextRed();
-        changeRed();
+        printText1();
+        change1();
         
     }
     if(GPIO1_IRQSTATUS_0 & BUTTON3_PIN) {
         delay(1000000);
         GPIO1_IRQSTATUS_0 = BUTTON3_PIN; // Limpa flag
-        button_white_pressed = !button_white_pressed;
+        button_3_pressed = !button_3_pressed;
         uart0_write_str("<Botão 3>\r\n");
-        printTextWhite();
-        changeWhite();
+        printText2();
+        change2();
     }
     uart0_write_str("\r\n");
 }
@@ -231,25 +231,38 @@ int main(void) {
     disable_watchdog();
 
     gpio_setup();
-    uart0_write_str("----------------------------------------\r\n");
-    uart0_write_str("             MENU DO PROJETO\r\n");
-    uart0_write_str("----------------------------------------\r\n\n");
-    uart0_write_str("BOTÃO 1) LED INTERNO\r\n");
-    uart0_write_str("BOTÃO 2) LED VERMELHO\r\n");
-    uart0_write_str("BOTÃO 3) LED BRANCO\r\n\n");
-    uart0_write_str("----------------------------------------\r\n");
+    uart0_write_str("****************************************\r\n");
+    uart0_write_str("             PROJETO\r\n");
+    uart0_write_str("****************************************\r\n\n");
+    uart0_write_str("BOTÃO 1 - LED INTERNO\r\n");
+    uart0_write_str("BOTÃO 2 - LED 1\r\n");
+    uart0_write_str("BOTÃO 3 - LED 2\n\n");
     
     // Loop principal
 	while(1){
 		unsigned char entrada = uart0_getc();
-
+    uart0_write_str("\r\n");
 		if (entrada == '1'){
 			uart0_write_str("LED INTERNO LIGADO\r\n");
 			GPIO1_SETDATAOUT = LED_INT;
 		} else if (entrada == '0'){
 			uart0_write_str("LED INTERNO DESLIGADO\r\n");
 			GPIO1_CLEARDATAOUT = LED_INT;
-		}
+		} else if (entrada - '0' == 2){
+      uart0_write_int(2);
+      delay(1000000);
+      button_2_pressed = !button_2_pressed;
+      change1();
+      printText1();
+    } else if (entrada - '0' == 3){
+      uart0_write_int(3);
+      delay(1000000);
+      button_3_pressed = !button_3_pressed;
+      change2();
+      printText2();
+    }
+    uart0_write_str("\r\n");
+    
 	}
     
     return 0;

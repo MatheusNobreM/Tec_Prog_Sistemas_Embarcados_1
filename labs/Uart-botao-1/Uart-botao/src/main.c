@@ -53,12 +53,12 @@ void uart0_write_str(const char *str) {
     }
 }
 // Definições de pinos
-#define LED_INT (1 << 21)  // P8_21 (LED INT)
+#define LED_INT (1 << 21)    // P8_21 (LED INT)
 #define BUTTON1_PIN (1 << 6) // P8_3(BOTÃO INT)
-#define BUTTON2_PIN (1 << 3)// P8_6 (BOTAO RED)
-#define BUTTON3_PIN (1 << 7)// P8_4 (BOTAO WHITE)
-#define LED_RED (1 << 13)// P8_11 (PINO DO LED RED)
-#define LED_WHITE (1 << 12)// P8_12 (PINO DO LED WHITE)
+#define BUTTON2_PIN (1 << 3) // P8_6 (BOTAO RED)
+#define BUTTON3_PIN (1 << 7) // P8_4 (BOTAO WHITE)
+#define LED_RED (1 << 13)    // P8_11 (PINO DO LED RED)
+#define LED_WHITE (1 << 12)  // P8_12 (PINO DO LED WHITE)
 
 
 void uart0_write_int(unsigned char inteiro) {
@@ -231,12 +231,12 @@ int main(void) {
     disable_watchdog();
 
     gpio_setup();
-    uart0_write_str("----------------------------------------\r\n");
-    uart0_write_str("             MENU DO PROJETO\r\n");
+    //uart0_write_str("----------------------------------------\r\n");
+    //uart0_write_str("             MENU DO PROJETO\r\n");
     uart0_write_str("----------------------------------------\r\n\n");
-    uart0_write_str("BOTÃO 1) LED INTERNO\r\n");
-    uart0_write_str("BOTÃO 2) LED VERMELHO\r\n");
-    uart0_write_str("BOTÃO 3) LED BRANCO\r\n\n");
+    uart0_write_str("BOTÃO 1 - LED INTERNO\r\n");
+    uart0_write_str("BOTÃO 2 - LED 1\r\n");
+    uart0_write_str("BOTÃO 3 - LED 2\r\n\n");
     uart0_write_str("----------------------------------------\r\n");
     
     // Loop principal
