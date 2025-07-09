@@ -70,6 +70,16 @@ void rtc_setup(void)
     /* Select external clock*/
     RTC_OSC_REG = 0x48;
 
+    //============================================
+    /* Stop RTC to set time (clear bit 0) */
+    RTC_CTRL_REG &= ~0x01;
+
+    /* Set time to 08:00:00 in BCD format */
+    HOURS_REG = 0x08;   // 08 hours in BCD
+    MINUTES_REG = 0x00; // 00 minutes in BCD
+    SECONDS_REG = 0x00; // 00 seconds in BCD
+    //============================================
+
     /* Interrupt setup */
     RTC_INTERRUPTS_REG = 0x4;   /* interrupt every second */
     //RTC_INTERRUPTS_REG = 0x5;   /* interrupt every minute */
@@ -162,7 +172,7 @@ int main(void)
   rtc_setup();
   disable_wdt();
 
-  const char *hello = "Hello Interrupt2!\n\r";
+  const char *hello = "Novo Horário 08:00hs\n\r";
   unsigned char *h = (unsigned char *)hello;
   while(*h != 0)
   {
