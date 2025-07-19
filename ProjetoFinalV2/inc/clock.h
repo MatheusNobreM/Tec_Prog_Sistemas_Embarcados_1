@@ -1,5 +1,7 @@
 #ifndef _CLOCK_H_
 #define _CLOCK_H_
+#define CM_WKUP_UART0_CLKCTRL  0xB4
+
 
 typedef enum _CKM_MODULE_REG{
    // CKM_PER zone

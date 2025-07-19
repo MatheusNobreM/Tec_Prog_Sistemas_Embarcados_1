@@ -44,6 +44,22 @@
 #ifndef _SOC_AM33XX_H_
 #define _SOC_AM33XX_H_
 
+// UART0 Clock Control Register (dentro do CM_WKUP)
+#define CM_WKUP_UART0_CLKCTRL   0xB4
+
+// UART0 MUX configuration (dentro do CONTROL_MODULE)
+#define CM_conf_uart0_txd       0x970  // TX pin mux offset
+#define CM_conf_uart0_rxd       0x974  // RX pin mux offset
+
+// UART bases agrupadas
+#define UART0_BASE              SOC_UART_0_REGS
+#define UART1_BASE              SOC_UART_1_REGS
+#define UART2_BASE              SOC_UART_2_REGS
+#define UART3_BASE              SOC_UART_3_REGS
+#define UART4_BASE              SOC_UART_4_REGS
+#define UART5_BASE              SOC_UART_5_REGS
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

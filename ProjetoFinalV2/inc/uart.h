@@ -4,11 +4,13 @@
 #include "hw_types.h"
 #include "soc_AM335x.h"
 #include "gpio.h"
-#include "clock.h"
 #include "interrupt.h"
 #include "timer.h"
-#include "control_module.h"
-#include "pad.h"
+#include "soc_AM335x.h"
+
+#define CM_WKUP_UART0_CLKCTRL  0xB4
+
+
 
 #define UARTx_OP_R_RHR 			0x0
 #define UARTx_OP_R_IER			0x4
@@ -287,14 +289,9 @@ int uartPutString(UART_t uart, char *str, unsigned int length);
  **/
 int uartGetString(UART_t uart, char *buf, unsigned int length);
 void uartClearBuffer(UART_t uart);
+void uartPutInt(UART_t uart, int num);
+unsigned int divu(unsigned int n, unsigned int d); // protótipo
 
-static const unsigned int UART_ARRAY_BASE[] = {
-    SOC_UART_0_REGS,
-    SOC_UART_1_REGS,
-    SOC_UART_2_REGS,
-    SOC_UART_3_REGS,
-    SOC_UART_4_REGS,
-    SOC_UART_5_REGS
-};
+
 
 #endif

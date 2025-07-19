@@ -1,4 +1,16 @@
 #include "uart.h"
+#include "pad.h"
+#include "soc_AM335x.h"
+
+static const unsigned int UART_ARRAY_BASE[] = {
+    SOC_UART_0_REGS,
+    SOC_UART_1_REGS,
+    SOC_UART_2_REGS,
+    SOC_UART_3_REGS,
+    SOC_UART_4_REGS,
+    SOC_UART_5_REGS
+};
+
 
 // Validação de número de UART
 static bool checkValidUart(UART_t uart) {
@@ -33,7 +45,8 @@ void uartInitModule(UART_t uart, unsigned int baudrate, STOP_BIT_t stopBit, PARI
          HWREG(UART0_BASE + 0x8C) = 0x83;
 
          // Clock: 48MHz / divisor = baud
-         unsigned int divisor = 48000000 / (16 * baudrate);
+         //unsigned int divisor = 48000000 / (16 * baudrate);
+         unsigned int divisor = divu(48000000, (16 * baudrate));
          HWREG(UART0_BASE + 0x0C) = divisor & 0xFF;          // DLL
          HWREG(UART0_BASE + 0x04) = (divisor >> 8) & 0x3F;   // DLH
 
@@ -79,3 +92,28 @@ int uartGetString(UART_t uart, char *buf, unsigned int length) {
    }
    return length;
 }
+
+void uartPutInt(UART_t uart, int num) {
+    char buf[12];
+    int i = 10;
+    int neg = 0;
+    buf[11] = 0;
+    if (num < 0) { neg = 1; num = -num; }
+    do {
+        buf[i--] = (num % 10) + '0';
+        num /= 10;
+    } while (num > 0);
+    if (neg) buf[i--] = '-';
+    uartPutString(uart, &buf[i+1], 11-i-1);
+}
+
+unsigned int divu(unsigned int n, unsigned int d) {
+    unsigned int q = 0;
+    while (n >= d) {
+        n -= d;
+        q++;
+    }
+    return q;
+}
+
+

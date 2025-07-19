@@ -3,7 +3,6 @@
 #include "timer.h"
 #include "hw_types.h"
 #include "soc_AM335x.h"
-#include "clock.h"
 #include "uart.h"
 
 // Pinos
@@ -75,6 +74,7 @@ void ISR_Handler(unsigned int interrupcao) {
     HWREG(INTC_BASE + INTC_CONTROL) = 0x1; // Limpa IRQ
 }
 
+
 int main(void) {
     watchdog();
 
@@ -92,7 +92,7 @@ int main(void) {
     rgb_set(LOW, LOW, LOW);
 
     // UART0
-    uartInitModule(UART0, 115200, STOP_1, PARITY_NONE, FLOW_OFF);
+    uartInitModule(UART0, 115200, STOP1, PARITY_NONE, FLOW_OFF);
 
     // Configura interrupção GPIO1_14 (ECHO)
     pinInterrup(0, GPIO1, ECHO_PIN);
@@ -101,10 +101,6 @@ int main(void) {
     HWREG(INTC_BASE + INTC_ILR(98)) = 0; // IRQ level-sensitive
     HWREG(INTC_BASE + INTC_SYSCONFIG) |= (1 << 1); // Auto idle
 
-    // Ativa interrupções globais
-    asm(" cpsie i");
-
-    char buffer[50];
     int tempo, distancia;
 
     while (1) {
@@ -114,11 +110,12 @@ int main(void) {
         while (!ready);
 
         tempo = end_time - start_time;
-        distancia = (tempo * VELOCIDADE_DO_SOM) / 2000; // em mm
+        distancia = divu((tempo * VELOCIDADE_DO_SOM), 2000); // em mm
 
         // UART: envia distância
-        int len = sprintf(buffer, "Distancia: %d mm\r\n", distancia);
-        uartPutString(UART0, buffer, len);
+        uartPutString(UART0, "Distancia: ", 11);
+        uartPutInt(UART0, distancia);
+        uartPutString(UART0, " mm\r\n", 5);
 
         // LED RGB por faixa
         if (distancia < 5000) {

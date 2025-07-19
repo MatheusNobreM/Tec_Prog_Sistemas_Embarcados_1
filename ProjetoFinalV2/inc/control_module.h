@@ -165,8 +165,6 @@ typedef enum{
    CM_conf_ecap0_in_pwm0_out     = 0x0964,
    CM_conf_uart0_ctsn            = 0x0968,
    CM_conf_uart0_rtsn            = 0x096C,
-   CM_conf_uart0_rxd             = 0x0970,
-   CM_conf_uart0_txd             = 0x0974,
    CM_conf_uart1_ctsn            = 0x0978,
    CM_conf_uart1_rtsn            = 0x097C,
    CM_conf_uart1_rxd             = 0x0980,

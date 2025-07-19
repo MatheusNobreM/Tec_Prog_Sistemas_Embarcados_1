@@ -41,6 +41,8 @@
 
 #ifndef _HW_TYPES_H_
 #define _HW_TYPES_H_
+#include <stdbool.h>
+
 
 //*****************************************************************************
 //
@@ -48,11 +50,6 @@
 //
 //*****************************************************************************
 typedef unsigned char tBoolean;
-
-typedef enum{
-   true = 1,
-   false = 0
-}bool;
 
 #ifndef NULL
 #define NULL ((void*) 0)

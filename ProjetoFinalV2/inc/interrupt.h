@@ -20,6 +20,12 @@
 #define MIR_CLEAR1                                      0xA8
 #define MIR_CLEAR2 						                0xC8
 #define MIR_CLEAR3 					        	        0xE8
+#define INTC_MIR_CLEAR2                                 0x000000A8  // Offset do registrador MIR_CLEAR2
+#define INTC_SYSCONFIG                                  0x10
+#define INTC_ILR(x)   (0x100 + ((x) * 4))
+
+
+
 
 int Interrupt_Setup(unsigned int inter);
 void pinInterrup(int x, gpiomod mod,int pino);
