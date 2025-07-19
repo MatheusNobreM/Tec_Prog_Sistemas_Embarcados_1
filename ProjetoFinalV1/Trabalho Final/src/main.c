@@ -1,9 +1,3 @@
-/*Alunos: 
-        GABRIEL BARBOSA DIAS - 539956
-	    CAIO JORDAN OLIVEIRA DE SIQUEIRA - 509827
-        LUCAS NOBREGA DAMACENA - 535873
-*/
-
 #include "interrupt.h"
 #include "gpio.h"
 #include "timer.h"
@@ -13,18 +7,18 @@
 #include "uart.h"
 
 #define TIMER2_BASE      0x48040000
-#define TIMER_TCLR       (TIMER2_BASE + 0x38)
-#define TIMER_TCRR       (TIMER2_BASE + 0x3C)
-#define TIMER_TLDR       (TIMER2_BASE + 0x40)
-#define TIMER_TTGR       (TIMER2_BASE + 0x44)
+#define TIMER_TCLR       (TIMER2_BASE + 0x38) // Controle
+#define TIMER_TCRR       (TIMER2_BASE + 0x3C) // Contador atual
+#define TIMER_TLDR       (TIMER2_BASE + 0x40) // Valor de carga
+#define TIMER_TTGR       (TIMER2_BASE + 0x44) // Valor do gatilho
 
 #define TIMER2_TCLR      (*(volatile int *)TIMER_TCLR)
 #define TIMER2_TCRR      (*(volatile int *)TIMER_TCRR)
 #define TIMER2_TLDR      (*(volatile int *)TIMER_TLDR)
 #define TIMER2_TTGR      (*(volatile int *)TIMER_TTGR)
 
-#define TRIGGER_PIN      (15)
-#define ECHO_PIN         (14)
+#define TRIGGER_PIN      (15) // Envia pulso para o sensor
+#define ECHO_PIN         (14) // Recebe o retorno do pulso
 #define RED_LED_PIN      (13)
 #define GREEN_LED_PIN    (12)
 #define YELLOW_LED_PIN   (16)
@@ -32,14 +26,16 @@
 
 #define VELOCIDADE_DO_SOM 343
 
-int get_timer_value() {
+int get_timer_value() { //Lê o valor atual do contador do Timer2
     return TIMER2_TCRR;
 }
 
-void delay1(volatile unsigned int count) {
+// Delay em loop ocupado. Usado para dar o tempo entre pulso e leitura do sensor
+void delay1(volatile unsigned int count) { 
     while (count--);
 }
 
+// Envia um pulso de controle de 10μs no pino TRIGGER
 void mandar_pulso(){
     outState(GPIO1, TRIGGER_PIN, LOW);
     delay1(20000);
@@ -52,16 +48,19 @@ int medir() {
     int start_time;
     int end_time;
 
+    // Aguarda o pino ECHO ir para HIGH (quando o sensor detecta o início da resposta).
     while (!gpio_Input(GPIO1, ECHO_PIN)) {
         delay1(1);
     }
-
     start_time = get_timer_value();
     timerEnable(TIMER2);
+
+    //Aguarda o pino ECHO voltar para LOW (fim da resposta).
     while (gpio_Input(GPIO1, ECHO_PIN)) {
         delay1(1);
     }
     end_time = get_timer_value();
+    
     timerDisable(TIMER2);
     HWREG(SOC_DMTIMER_2_REGS + DMTIMER_TCLR) = 0x0;
     HWREG(SOC_DMTIMER_2_REGS + DMTIMER_TCRR) = 0x0;
