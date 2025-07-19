@@ -6,11 +6,11 @@
 #include "uart.h"
 
 // Pinos
-#define TRIGGER_PIN     15  // GPIO1_15 → TRIGGER
-#define ECHO_PIN        14  // GPIO1_14 → ECHO
-#define LED_R_PIN       16  // GPIO1_16 → LED RGB - RED
-#define LED_G_PIN       13  // GPIO1_13 → LED RGB - GREEN
-#define LED_B_PIN       12  // GPIO1_12 → LED RGB - BLUE
+#define TRIGGER_PIN     15  // GPIO1_15 → P8_15
+#define ECHO_PIN        14  // GPIO1_14 → P8_16
+#define LED_R_PIN       16  // GPIO1_16 → P8_14
+#define LED_G_PIN       13  // GPIO1_13 → P8_11
+#define LED_B_PIN       12  // GPIO1_12 → P8_12
 
 #define VELOCIDADE_DO_SOM 343 // m/s
 
@@ -37,11 +37,11 @@ void mandar_pulso() {
     outState(GPIO1, TRIGGER_PIN, LOW);
 }
 
-// Configura LED RGB
+// Configura LED RGB (para CÁTODO COMUM, HIGH = aceso, LOW = apagado)
 void rgb_set(State r, State g, State b) {
-    outState(GPIO1, LED_R_PIN, r);
-    outState(GPIO1, LED_G_PIN, g);
-    outState(GPIO1, LED_B_PIN, b);
+    outState(GPIO1, LED_R_PIN, r);  // HIGH acende vermelho
+    outState(GPIO1, LED_G_PIN, g);  // HIGH acende verde
+    outState(GPIO1, LED_B_PIN, b);  // HIGH acende azul
 }
 
 // Interrupção do ECHO
