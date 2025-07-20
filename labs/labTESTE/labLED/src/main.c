@@ -1,5 +1,14 @@
 #include <stdint.h>
 
+// Watchdog minimal
+#define WDT1_BASE 0x44E35000
+#define WDT_WSPR (*(volatile uint32_t *)(WDT1_BASE + 0x48))
+#define WDT_WWPS (*(volatile uint32_t *)(WDT1_BASE + 0x34))
+void disable_watchdog(void) {
+    WDT_WSPR = 0xAAAA; while (WDT_WWPS & (1 << 4));
+    WDT_WSPR = 0x5555; while (WDT_WWPS & (1 << 4));
+}
+
 // Definições GPIO1 para três canais (ajuste se necessário)
 #define CM_PER_BASE         0x44E00000
 #define CM_PER_GPIO1_CLKCTRL (*(volatile uint32_t*)(CM_PER_BASE + 0xAC))
@@ -7,10 +16,10 @@
 #define GPIO1_OE            (*(volatile uint32_t*)(GPIO1_BASE + 0x134))
 #define GPIO1_CLEARDATAOUT  (*(volatile uint32_t*)(GPIO1_BASE + 0x190))
 #define GPIO1_SETDATAOUT    (*(volatile uint32_t*)(GPIO1_BASE + 0x194))
-
-#define LED_R (1 << 13)   // P8_11 = GPIO1_13
-#define LED_G (1 << 12)   // P8_12 = GPIO1_12
-#define LED_B (1 << 14)   // P8_16 = GPIO1_14 (confira!)
+// LED RGB (catodo comum)
+#define LED_R       (1 << 13)    // GPIO1_13 (P8_11)  -> Vermelho
+#define LED_G       (1 << 12)    // GPIO1_12 (P8_12)  -> Verde
+#define LED_B       (1 << 28)    // GPIO1_28 (P9_12)   -> Azul  
 
 void delay(volatile unsigned int c) {
     while(c--);
@@ -41,26 +50,22 @@ void ISR_Handler(unsigned int interrupcao) {
     // Seu código de interrupção aqui.
 }
 
+void delay_us(unsigned int us) { volatile unsigned int c = us * 14; while(c--); }
+void delay_ms(unsigned int ms) { while(ms--) delay_us(1000); }
+
 int main(void) {
+    disable_watchdog();
     gpio_setup();
     while(1) {
-        rgb_color(1,0,0);   // Vermelho
-        // UART opcional, mas pode printar
-        delay(10000000);
-        rgb_color(0,1,0);   // Verde
-        delay(10000000);
-        rgb_color(0,0,1);   // Azul
-        delay(10000000);
-        rgb_color(1,1,0);   // Amarelo (R+G)
-        delay(10000000);
-        rgb_color(1,0,1);   // Magenta (R+B)
-        delay(10000000);
-        rgb_color(0,1,1);   // Ciano (G+B)
-        delay(10000000);
-        rgb_color(1,1,1);   // Branco (R+G+B)
-        delay(10000000);
-        rgb_color(0,0,0);   // Tudo apagado
-        delay(10000000);
+        // Teste cada LED individualmente
+        GPIO1_SETDATAOUT = LED_R; delay_ms(2000);
+        GPIO1_CLEARDATAOUT = LED_R; delay_ms(2000);
+
+        GPIO1_SETDATAOUT = LED_G; delay_ms(2000);
+        GPIO1_CLEARDATAOUT = LED_G; delay_ms(2000);
+
+        GPIO1_SETDATAOUT = LED_B; delay_ms(2000);
+        GPIO1_CLEARDATAOUT = LED_B; delay_ms(2000);
     }
-    return 0;
 }
+

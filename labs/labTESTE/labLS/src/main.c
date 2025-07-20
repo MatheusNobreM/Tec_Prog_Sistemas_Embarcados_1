@@ -32,34 +32,43 @@ void uart0_write_uint(unsigned int n) {
 #define GPIO1_CLEARDATAOUT      (*(volatile uint32_t*)(GPIO1_BASE + 0x190))
 #define GPIO1_DATAIN            (*(volatile uint32_t*)(GPIO1_BASE + 0x138))
 
-// Pins
-#define TRIG_PIN    (1 << 15)    // GPIO1_15 (P8_15)
-#define ECHO_PIN    (1 << 14)    // GPIO1_14 (P8_16)
-#define LED_R       (1 << 13)    // GPIO1_13 (P8_11)
+// Pins (todos P8)
+#define TRIG_PIN    (1 << 15)    // GPIO1_15 → P8_15
+#define ECHO_PIN    (1 << 14)    // GPIO1_14 → P8_16
+// LED RGB (catodo comum)
+#define LED_R       (1 << 13)    // GPIO1_13 (P8_11)  -> Vermelho
+#define LED_G       (1 << 12)    // GPIO1_12 (P8_12)  -> Verde
+#define LED_B       (1 << 28)    // GPIO1_28 (P9_12)   -> Azul 
 
-// Delay
 void delay_us(unsigned int us) { volatile unsigned int c = us * 14; while(c--); }
 void delay_ms(unsigned int ms) { while(ms--) delay_us(1000); }
 
+// GPIO setup
 void gpio_setup(void) {
     CM_PER_GPIO1_CLKCTRL |= 0x2;
     while (!(CM_PER_GPIO1_CLKCTRL & 0x3));
-    GPIO1_OE &= ~(TRIG_PIN | LED_R); // TRIG e LED como saída
-    GPIO1_OE |= ECHO_PIN;            // ECHO como entrada
+    GPIO1_OE &= ~(TRIG_PIN | LED_R | LED_G | LED_B); // Todos como saída
+    GPIO1_OE |= ECHO_PIN;    // ECHO como entrada
+}
+
+// Função para setar cor do RGB (catodo comum, HIGH acende)
+void rgb_set(int r, int g, int b) {
+    if (r) GPIO1_SETDATAOUT = LED_R; else GPIO1_CLEARDATAOUT = LED_R;
+    if (g) GPIO1_SETDATAOUT = LED_G; else GPIO1_CLEARDATAOUT = LED_G;
+    if (b) GPIO1_SETDATAOUT = LED_B; else GPIO1_CLEARDATAOUT = LED_B;
+    // OBS: Não controlando azul pois o pino já é usado para ECHO!
 }
 
 // Leitura do sensor
 unsigned int hcsr04_read_mm() {
     unsigned int t = 0;
-    // Garante TRIG em LOW
+    // TRIG LOW
     GPIO1_CLEARDATAOUT = TRIG_PIN;
     delay_us(2);
-
     // Pulso TRIG de 10us
     GPIO1_SETDATAOUT = TRIG_PIN;
     delay_us(10);
     GPIO1_CLEARDATAOUT = TRIG_PIN;
-
     // Espera ECHO subir
     int timeout = 0;
     while (!(GPIO1_DATAIN & ECHO_PIN)) {
@@ -76,15 +85,12 @@ unsigned int hcsr04_read_mm() {
     return t / 6; // Aproximação em mm
 }
 
-void ISR_Handler(void) {} // Dummy
+void ISR_Handler(void) {}
 
 int main(void) {
     disable_watchdog();
     gpio_setup();
-    uart0_write_str("\r\n---- HC-SR04 + LED ----\r\n");
-
-    // Liga o LED vermelho ao iniciar
-    GPIO1_SETDATAOUT = LED_R;
+    uart0_write_str("\r\n---- HC-SR04 + LED RGB por FAIXA ----\r\n");
 
     while(1) {
         unsigned int distancia = hcsr04_read_mm();
@@ -93,14 +99,16 @@ int main(void) {
         uart0_write_uint(distancia);
         uart0_write_str(" mm\r\n");
 
-        if (distancia > 0 && distancia < 150) { 
-            GPIO1_CLEARDATAOUT = LED_R;
-            uart0_write_str("LED APAGADO\r\n");
-        } else {
-            GPIO1_SETDATAOUT = LED_R;
-        }
-
-
+        if (distancia < 200) {
+            rgb_set(1, 0, 0);    // Vermelho
+            uart0_write_str("Faixa: Vermelho\r\n");
+        } else if (distancia < 400) {
+            rgb_set(0, 0, 1);    // Azul
+            uart0_write_str("Faixa: Azul\r\n");
+        } else if (distancia > 401){
+            rgb_set(0, 1, 0);    // Verde
+            uart0_write_str("Faixa: Verde\r\n");
+        } 
         delay_ms(500);
     }
     return 0;
