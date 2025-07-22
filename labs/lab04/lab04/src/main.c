@@ -98,6 +98,15 @@ void gpio_interrupt_enable(){
 	GPIO1_IRQSTATUS_SET_0 |= (1 << BTC);
 }
 
+void ISR_Handler(void){
+	unsigned int status = GPIO1_IRQSTATUS;
+	if(status & (1 << BTC)){
+		acender_LED();
+		// Limpa a interrupção
+		GPIO1_IRQSTATUS = (1 << BTC);
+	}
+}
+
 void intc_interrupt_enable(){
 	// O INTC controla interrupções no AM355x.
 	// A interrupção do GPIO1 é a n° 98, então está no registrador INTC_MIR_SETx onde x = 3.
@@ -131,11 +140,3 @@ void ledOFF(){
 	estado_led = false;
 }
 
-void ISR_Handler(void){
-	unsigned int status = GPIO1_IRQSTATUS;
-	if(status & (1 << BTC)){
-		acender_LED();
-		// Limpa a interrupção
-		GPIO1_IRQSTATUS = (1 << BTC);
-	}
-}
