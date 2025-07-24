@@ -23,10 +23,17 @@ static void uart0_putc(char c) {
 static void uart0_write_str(const char *s) { 
     while (*s) uart0_putc(*s++); 
 }
+
+//perguntar
 static void uart0_write_uint(unsigned int n) {
     char buf[16]; int i = 0;
     if (n == 0) { uart0_putc('0'); return; }
-    while (n && i < 15) { buf[i++] = '0' + (n % 10); n /= 10; }
+
+    while (n && i < 15) {
+        buf[i++] = '0' + (n % 10);
+        n /= 10; 
+    }
+
     while (i--) uart0_putc(buf[i]);
 }
 
@@ -49,9 +56,11 @@ static void uart0_write_uint(unsigned int n) {
 volatile int sensor_ativo = 0;  // <<< declaração global
 #define DEBOUNCE_MS 200
 
+//perguntar
 static void delay_us(unsigned int us)   { volatile unsigned int c = us * 14; while(c--); }
 static void delay_ms(unsigned int ms)   { while(ms--) delay_us(1000); }
 
+//perguntar
 // Configura GPIO+padmux
 static void gpio_setup(void) {
     // habilita clock GPIO1
@@ -82,7 +91,7 @@ static void rgb_set(int r, int g) {
 // Leitura HC-SR04
 static unsigned int hcsr04_read_mm(void) {
     unsigned int t = 0, to = 0;
-    GPIO1_CLEARDATAOUT = TRIG_PIN;
+    GPIO1_CLEARDATAOUT = TRIG_PIN; //
     delay_us(2);
     GPIO1_SETDATAOUT = TRIG_PIN;
     delay_us(10);
@@ -107,7 +116,8 @@ void ISR_Handler(void) {}
 int main(void) {
     disable_watchdog();
     gpio_setup();
-    uart0_write_str("\r\n-- HC-SR04 + LED RGB + Botão Polling --\r\n");
+    uart0_write_str("\r\n===== Sensor de Proximidade =====\r\n\n");
+    uart0_write_str("\r\n-- Aperte o botão para começar --\r\n");
 
     int last_btn = 0;
     while (1) {

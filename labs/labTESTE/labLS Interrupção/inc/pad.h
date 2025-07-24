@@ -19,8 +19,15 @@ typedef enum {
     MODE_7
 } pinmode_t;
 
+// Configurações de pull-up/pull-down
+#define PULL_UP      (1u << 3)    // Bit 3 para pull-up
+#define PULL_DOWN    (0u << 3)    // Bit 3 para pull-down
+#define PULL_ENABLE  (1u << 4)    // Bit 4 para habilitar pull
+#define PULL_DISABLE (0u << 4)    // Bit 4 para desabilitar pull
+
 // Protótipos – implementados em pad.c
 void padSetMode(CONTROL_MODULE offset, pinmode_t mode);
 pinmode_t padGetMode(CONTROL_MODULE offset);
+void padSetPull(CONTROL_MODULE offset, uint32_t pull, uint32_t enable);
 
 #endif // PAD_H
