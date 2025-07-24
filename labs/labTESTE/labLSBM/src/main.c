@@ -74,9 +74,11 @@ int main(void) {
                 } else if (dist >= 4 && dist <= 6) {
                     rgb_set(1,1);
                     uart_write_str("Faixa: Amarelo\r\n");
-                } else {
+                } else if (dist <= 7){
                     rgb_set(0,1);
                     uart_write_str("Faixa: Verde\r\n");
+                }else {
+                    
                 }
             }
         }

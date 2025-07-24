@@ -9,7 +9,7 @@ unsigned int hcsr04_read_mm(void) {
 
     // Trigger
     GPIO1_CLEARDATAOUT = TRIG_PIN; // low
-    delay_us(2);
+    delay_ms(2);
     GPIO1_SETDATAOUT = TRIG_PIN; //high
     delay_us(10);
     GPIO1_CLEARDATAOUT = TRIG_PIN; // low
@@ -34,9 +34,9 @@ unsigned int hcsr04_read_mm(void) {
         t++;
     }
 
-     uart_write_str("Pulse: ");
-    uart_write_uint(t);
-    uart_write_str(" us\r\n");
+    //uart_write_str("Pulse: ");
+    //uart_write_uint(t);
+    //uart_write_str(" us\r\n");
 
-    return (t/95) / 2; 
+    return ((t * 340) / 20000)/2;
 }
